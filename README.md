@@ -27,6 +27,7 @@ In this setup, the directory `/opt/local-path-provisioner` will be used across a
 
 ```
 kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+kubectl create configmap script -n local-path-storage --from-file=deploy/cm/
 ```
 
 After installation, you should see something like the following:

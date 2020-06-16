@@ -190,9 +190,8 @@ func (p *LocalPathProvisioner) Provision(opts pvController.ProvisionOptions) (*v
 	logrus.Infof("Creating volume %v at %v:%v", name, node.Name, path)
 
 	createCmdsForPath := []string{
-		"mkdir",
-		"-m", "0777",
-		"-p",
+		"/bin/sh",
+		"/tmp/add.sh",
 	}
 	if err := p.createHelperPod(ActionTypeCreate, createCmdsForPath, name, path, node.Name); err != nil {
 		return nil, err
@@ -248,7 +247,7 @@ func (p *LocalPathProvisioner) Delete(pv *v1.PersistentVolume) (err error) {
 	}
 	if pv.Spec.PersistentVolumeReclaimPolicy != v1.PersistentVolumeReclaimRetain {
 		logrus.Infof("Deleting volume %v at %v:%v", pv.Name, node, path)
-		cleanupCmdsForPath := []string{"rm", "-rf"}
+		cleanupCmdsForPath := []string{"/bin/sh", "/tmp/del.sh"}
 		if err := p.createHelperPod(ActionTypeDelete, cleanupCmdsForPath, pv.Name, path, node); err != nil {
 			logrus.Infof("clean up volume %v failed: %v", pv.Name, err)
 			return err
@@ -324,6 +323,7 @@ func (p *LocalPathProvisioner) createHelperPod(action ActionType, cmdsForPath []
 	helperPod := &v1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: string(action) + "-" + name,
+			Namespace: p.namespace,
 		},
 		Spec: v1.PodSpec{
 			RestartPolicy: v1.RestartPolicyNever,
@@ -344,6 +344,11 @@ func (p *LocalPathProvisioner) createHelperPod(action ActionType, cmdsForPath []
 							ReadOnly:  false,
 							MountPath: "/data/",
 						},
+						{
+							Name:      "script",
+							ReadOnly:  false,
+							MountPath: "/tmp",
+						},
 					},
 					ImagePullPolicy: v1.PullIfNotPresent,
 				},
@@ -355,6 +360,26 @@ func (p *LocalPathProvisioner) createHelperPod(action ActionType, cmdsForPath []
 						HostPath: &v1.HostPathVolumeSource{
 							Path: parentDir,
 							Type: &hostPathType,
+						},
+					},
+				},
+				{
+					Name: "script",
+					VolumeSource: v1.VolumeSource{
+						ConfigMap: &v1.ConfigMapVolumeSource{
+							LocalObjectReference: v1.LocalObjectReference{
+								Name: "script",
+							},
+							Items: []v1.KeyToPath{
+								{
+									Key: "add.sh",
+									Path: "add.sh",
+								},
+								{
+									Key: "del.sh",
+									Path: "del.sh",
+								},
+							},
 						},
 					},
 				},
