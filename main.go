@@ -13,7 +13,7 @@ import (
 	clientset "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	pvController "sigs.k8s.io/sig-storage-lib-external-provisioner/controller"
-	"k8s.io/client-go/tools/clientcmd"
+	//"k8s.io/client-go/tools/clientcmd"
 )
 
 var (
@@ -94,10 +94,10 @@ func startDaemon(c *cli.Context) error {
 		return errors.Wrap(err, "unable to get client config")
 	}
 
-	config, err = clientcmd.BuildConfigFromFlags("", "/root/.kube/config")
-	if err != nil {
-		panic(err)
-	}
+	//config, err = clientcmd.BuildConfigFromFlags("", "/root/.kube/config")
+	//if err != nil {
+	//	panic(err)
+	//}
 
 	kubeClient, err := clientset.NewForConfig(config)
 	if err != nil {
