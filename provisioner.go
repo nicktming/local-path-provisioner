@@ -322,7 +322,7 @@ func (p *LocalPathProvisioner) createHelperPod(action ActionType, cmdsForPath []
 	hostPathType := v1.HostPathDirectoryOrCreate
 	helperPod := &v1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: string(action) + "-" + name,
+			Name:      string(action) + "-" + name,
 			Namespace: p.namespace,
 		},
 		Spec: v1.PodSpec{
@@ -372,11 +372,11 @@ func (p *LocalPathProvisioner) createHelperPod(action ActionType, cmdsForPath []
 							},
 							Items: []v1.KeyToPath{
 								{
-									Key: "add.sh",
+									Key:  "add.sh",
 									Path: "add.sh",
 								},
 								{
-									Key: "del.sh",
+									Key:  "del.sh",
 									Path: "del.sh",
 								},
 							},
