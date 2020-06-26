@@ -372,6 +372,7 @@ func (p *LocalPathProvisioner) createHelperPod(action ActionType, cmdsForPath []
 					Name: "cmdDir",
 					VolumeSource: v1.VolumeSource{
 						EmptyDir: &v1.EmptyDirVolumeSource{
+							Medium: 	v1.StorageMediumMemory,
 						},
 					},
 				},
