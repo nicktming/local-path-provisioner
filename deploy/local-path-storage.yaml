@@ -103,3 +103,20 @@ data:
                 ]
         }
 
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: script
+  namespace: local-path-storage
+data:
+  setup: |+
+        #!/bin/sh
+        path=$1
+        mkdir -m 0777 -p ${path}
+  teardown: |+
+        #!/bin/sh
+        path=$1
+        rm -rf ${path}
+
+

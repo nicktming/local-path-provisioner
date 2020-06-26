@@ -191,7 +191,7 @@ func (p *LocalPathProvisioner) Provision(opts pvController.ProvisionOptions) (*v
 
 	createCmdsForPath := []string{
 		"/bin/sh",
-		"/tmp/add.sh",
+		"/cmdDir/setup",
 	}
 	if err := p.createHelperPod(ActionTypeCreate, createCmdsForPath, name, path, node.Name); err != nil {
 		return nil, err
@@ -247,7 +247,7 @@ func (p *LocalPathProvisioner) Delete(pv *v1.PersistentVolume) (err error) {
 	}
 	if pv.Spec.PersistentVolumeReclaimPolicy != v1.PersistentVolumeReclaimRetain {
 		logrus.Infof("Deleting volume %v at %v:%v", pv.Name, node, path)
-		cleanupCmdsForPath := []string{"/bin/sh", "/tmp/del.sh"}
+		cleanupCmdsForPath := []string{"/bin/sh", "/cmdDir/teardown"}
 		if err := p.createHelperPod(ActionTypeDelete, cleanupCmdsForPath, pv.Name, path, node); err != nil {
 			logrus.Infof("clean up volume %v failed: %v", pv.Name, err)
 			return err
@@ -345,9 +345,14 @@ func (p *LocalPathProvisioner) createHelperPod(action ActionType, cmdsForPath []
 							MountPath: "/data/",
 						},
 						{
+							Name:      "cmdDir",
+							ReadOnly:  false,
+							MountPath: "/cmdDir",
+						},
+						{
 							Name:      "script",
 							ReadOnly:  false,
-							MountPath: "/tmp",
+							MountPath: "/cmdDir",
 						},
 					},
 					ImagePullPolicy: v1.PullIfNotPresent,
@@ -364,6 +369,13 @@ func (p *LocalPathProvisioner) createHelperPod(action ActionType, cmdsForPath []
 					},
 				},
 				{
+					Name: "cmdDir",
+					VolumeSource: v1.VolumeSource{
+						EmptyDir: &v1.EmptyDirVolumeSource{
+						},
+					},
+				},
+				{
 					Name: "script",
 					VolumeSource: v1.VolumeSource{
 						ConfigMap: &v1.ConfigMapVolumeSource{
@@ -372,12 +384,12 @@ func (p *LocalPathProvisioner) createHelperPod(action ActionType, cmdsForPath []
 							},
 							Items: []v1.KeyToPath{
 								{
-									Key:  "add.sh",
-									Path: "add.sh",
+									Key:  "setup",
+									Path: "setup",
 								},
 								{
-									Key:  "del.sh",
-									Path: "del.sh",
+									Key:  "teardown",
+									Path: "teardown",
 								},
 							},
 						},
