@@ -352,7 +352,7 @@ func (p *LocalPathProvisioner) createHelperPod(action ActionType, cmdsForPath []
 						{
 							Name:      "script",
 							ReadOnly:  false,
-							MountPath: "/scriptdir",
+							MountPath: "/scriptdir/script",
 						},
 					},
 					ImagePullPolicy: v1.PullIfNotPresent,
