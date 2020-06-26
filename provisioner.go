@@ -191,7 +191,7 @@ func (p *LocalPathProvisioner) Provision(opts pvController.ProvisionOptions) (*v
 
 	createCmdsForPath := []string{
 		"/bin/sh",
-		"/cmdDir/setup",
+		"/scriptdir/setup",
 	}
 	if err := p.createHelperPod(ActionTypeCreate, createCmdsForPath, name, path, node.Name); err != nil {
 		return nil, err
@@ -247,7 +247,7 @@ func (p *LocalPathProvisioner) Delete(pv *v1.PersistentVolume) (err error) {
 	}
 	if pv.Spec.PersistentVolumeReclaimPolicy != v1.PersistentVolumeReclaimRetain {
 		logrus.Infof("Deleting volume %v at %v:%v", pv.Name, node, path)
-		cleanupCmdsForPath := []string{"/bin/sh", "/cmdDir/teardown"}
+		cleanupCmdsForPath := []string{"/bin/sh", "/scriptdir/teardown"}
 		if err := p.createHelperPod(ActionTypeDelete, cleanupCmdsForPath, pv.Name, path, node); err != nil {
 			logrus.Infof("clean up volume %v failed: %v", pv.Name, err)
 			return err
@@ -345,14 +345,14 @@ func (p *LocalPathProvisioner) createHelperPod(action ActionType, cmdsForPath []
 							MountPath: "/data/",
 						},
 						{
-							Name:      "cmdDir",
+							Name:      "scriptdir",
 							ReadOnly:  false,
-							MountPath: "/cmdDir",
+							MountPath: "/scriptdir",
 						},
 						{
 							Name:      "script",
 							ReadOnly:  false,
-							MountPath: "/cmdDir",
+							MountPath: "/scriptdir",
 						},
 					},
 					ImagePullPolicy: v1.PullIfNotPresent,
@@ -369,7 +369,7 @@ func (p *LocalPathProvisioner) createHelperPod(action ActionType, cmdsForPath []
 					},
 				},
 				{
-					Name: "cmdDir",
+					Name: "scriptdir",
 					VolumeSource: v1.VolumeSource{
 						EmptyDir: &v1.EmptyDirVolumeSource{
 							Medium: 	v1.StorageMediumMemory,
