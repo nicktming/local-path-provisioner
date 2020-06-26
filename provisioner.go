@@ -345,14 +345,9 @@ func (p *LocalPathProvisioner) createHelperPod(action ActionType, cmdsForPath []
 							MountPath: "/data/",
 						},
 						{
-							Name:      "scriptdir",
-							ReadOnly:  false,
-							MountPath: "/scriptdir",
-						},
-						{
 							Name:      "script",
 							ReadOnly:  false,
-							MountPath: "/scriptdir/script",
+							MountPath: "/scriptdir",
 						},
 					},
 					ImagePullPolicy: v1.PullIfNotPresent,
@@ -365,14 +360,6 @@ func (p *LocalPathProvisioner) createHelperPod(action ActionType, cmdsForPath []
 						HostPath: &v1.HostPathVolumeSource{
 							Path: parentDir,
 							Type: &hostPathType,
-						},
-					},
-				},
-				{
-					Name: "scriptdir",
-					VolumeSource: v1.VolumeSource{
-						EmptyDir: &v1.EmptyDirVolumeSource{
-							Medium: 	v1.StorageMediumMemory,
 						},
 					},
 				},
