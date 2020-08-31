@@ -193,6 +193,8 @@ func (p *LocalPathProvisioner) Provision(opts pvController.ProvisionOptions) (*v
 	path := filepath.Join(basePath, folderName)
 	logrus.Infof("Creating volume %v at %v:%v", name, node.Name, path)
 
+	logrus.Infof("pvc %v with size: %v", pvc.Spec.Resources.Requests.StorageEphemeral().String())
+
 	createCmdsForPath := []string{
 		"/bin/sh",
 		"/script/setup",
